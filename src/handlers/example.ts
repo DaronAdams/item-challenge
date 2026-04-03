@@ -7,7 +7,7 @@
 
 import { createStorage } from '../storage/index.js';
 
-const storage = createStorage();
+export const storage = createStorage();
 
 export async function getItemHandler(id: string) {
   try {
