@@ -11,7 +11,8 @@
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
-import { createItemHandler, getItemHandler } from "../handlers/example.js";
+import { createItemHandler } from "../handlers/create-item";
+import { getItemHandler } from "../handlers/get-item";
 
 describe("Example Handlers", () => {
   describe("createItemHandler", () => {

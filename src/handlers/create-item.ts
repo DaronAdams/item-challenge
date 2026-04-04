@@ -1,6 +1,5 @@
-import z from "zod";
 import { HandlerResponse } from "../types/handler";
-import { ExamItem } from "../types/item";
+import { CreateItemRequest, ExamItem } from "../types/item";
 import { storage } from "./example";
 import { CreateItemSchema } from "../types/zod-schemas";
 
