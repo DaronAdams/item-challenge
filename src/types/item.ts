@@ -17,7 +17,7 @@ export interface ExamItem {
     author: string;
     created: number; // timestamp
     lastModified: number; // timestamp
-    version: number;
+    version: string;
     status: string; // "draft", "review", "approved", "archived"
     tags: string[];
   };

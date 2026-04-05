@@ -50,7 +50,7 @@ export class DynamoDBStorage implements ItemStorage {
         ...data.metadata,
         created: now,
         lastModified: now,
-        version: 1,
+        version: "CURRENT",
       },
     };
 
@@ -107,10 +107,35 @@ export class DynamoDBStorage implements ItemStorage {
     return { items, total: result.Count || 0 };
   }
 
+
   async createVersion(id: string): Promise<ExamItem | null> {
-    // TODO: Implement versioning strategy
-    // Options: Separate versions table, same table with sort key, etc.
-    throw new Error('Not implemented - define your versioning strategy');
+    const currentItem = await this.getItem(id);
+
+    if (!currentItem) {
+      throw new Error(`Invalid ${id} passed. Item not found in DynamoDb.`)
+    }
+
+    const versionNumber = currentItem.metadata.version;
+
+    try {
+        await this.client.send(new PutCommand({
+        TableName: this.tableName,
+        Item: {
+          itemId: id,
+          versionKey: `V${versionNumber}`,
+          ...currentItem,
+        },
+        // We do this to make sure we're not overwritting the same version
+        ConditionExpression: 'attribute_not_exists(versionKey)'
+        }));
+      } catch (error) {
+        const errorMessage = "Unexpected error when calling createVersion";
+        console.log(errorMessage, error);
+        throw new Error(errorMessage)
+      }
+    
+    return currentItem;
+    
   }
 
   async getAuditTrail(id: string): Promise<ExamItem[]> {

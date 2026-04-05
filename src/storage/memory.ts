@@ -22,12 +22,12 @@ export class MemoryStorage implements ItemStorage {
         ...data.metadata,
         created: now,
         lastModified: now,
-        version: 1,
+        version: "CURRENT",
       },
     };
 
     this.items.set(item.id, item);
-    this.versions.set(item.id, [{ ...item }]);
+
 
     return item;
   }
@@ -53,11 +53,6 @@ export class MemoryStorage implements ItemStorage {
     };
 
     this.items.set(id, updated);
-
-    // Save version history
-    const history = this.versions.get(id) || [];
-    history.push({ ...updated });
-    this.versions.set(id, history);
 
     return updated;
   }
@@ -89,23 +84,14 @@ export class MemoryStorage implements ItemStorage {
     const item = this.items.get(id);
     if (!item) return null;
 
-    // Create a new version (copy of current state)
-    const newVersion: ExamItem = {
-      ...item,
-      metadata: {
-        ...item.metadata,
-        version: item.metadata.version + 1,
-        lastModified: Date.now(),
-      },
-    };
+    const snapshot: ExamItem = JSON.parse(JSON.stringify(item));
 
-    this.items.set(id, newVersion);
 
     const history = this.versions.get(id) || [];
-    history.push({ ...newVersion });
+    history.push(snapshot);
     this.versions.set(id, history);
 
-    return newVersion;
+    return item;
   }
 
   async getAuditTrail(id: string): Promise<ExamItem[]> {
